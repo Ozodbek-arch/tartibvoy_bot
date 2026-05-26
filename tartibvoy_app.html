@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kunlik Maqsadlar</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: #13131a;
+  --card2: #1c1c26;
+  --accent: #d4a853;
+  --accent2: #8b7dd4;
+  --text: #f2ede6;
+  --muted: #6b6b80;
+  --green: #5db88a;
+  --red: #c06070;
+  --blue: #5b9bd4;
+  --border: rgba(212,168,83,0.12);
+  --border2: rgba(139,125,212,0.12);
+  --nav-h: 64px;
+}
+/* LIGHT THEME */
+body.light {
+  --bg: #f5f0e8;
+  --card: #ffffff;
+  --card2: #ede8df;
+  --text: #1a1a2e;
+  --muted: #8a8a9a;
+  --border: rgba(212,168,83,0.2);
+  --border2: rgba(139,125,212,0.2);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; overflow:hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background 0.3s, color 0.3s;
+}
+body::before {
+  content:'';
+  position:fixed;
+  top:-100px; right:-100px;
+  width:400px; height:400px;
+  background: radial-gradient(circle, rgba(139,125,212,0.08) 0%, transparent 65%);
+  pointer-events:none; z-index:0;
+}
+body::after {
+  content:'';
+  position:fixed;
+  bottom:-80px; left:-80px;
+  width:300px; height:300px;
+  background: radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 65%);
+  pointer-events:none; z-index:0;
+}
+
+/* SCROLL AREA */
+.app-content {
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding-bottom: calc(var(--nav-h) + 16px);
+  position:relative; z-index:1;
+  -webkit-overflow-scrolling: touch;
+}
+.app-content::-webkit-scrollbar { display:none; }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left:0; right:0;
+  height: var(--nav-h);
+  background: rgba(13,13,20,0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+body.light .bottom-nav { background: rgba(245,240,232,0.95); }
+.nav-btn {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  cursor:pointer;
+  border:none;
+  background:none;
+  color: var(--muted);
+  font-size:11px;
+  font-family:'DM Sans',sans-serif;
+  font-weight:500;
+  transition: color 0.2s;
+  position:relative;
+  padding:0;
+}
+.nav-btn .nav-icon { font-size:22px; line-height:1; transition: transform 0.2s; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn.active .nav-icon { transform: scale(1.15); }
+.nav-btn.treasure { color: var(--accent2); }
+.nav-btn.treasure.active { color: var(--accent2); }
+.nav-btn.treasure .nav-icon { font-size:26px; }
+.nav-active-dot {
+  position:absolute;
+  top:6px;
+  width:4px; height:4px;
+  border-radius:50%;
+  background: var(--accent);
+  opacity:0;
+  transition: opacity 0.2s;
+}
+.nav-btn.active .nav-active-dot { opacity:1; }
+.nav-btn.treasure .nav-active-dot { background: var(--accent2); }
+
+/* SECTIONS */
+.section { display:none; }
+.section.active { display:block; }
+
+/* HEADER */
+.header {
+  padding: 20px 18px 12px;
+  display:flex;
+  flex-direction:column;
+}
+.header-top { display:flex; justify-content:space-between; align-items:flex-start; }
+.date-label {
+  font-size:11px;
+  color: var(--muted);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+.header h1 {
+  font-family:'Playfair Display',serif;
+  font-size:26px;
+  font-weight:700;
+  line-height:1.15;
+}
+.header h1 span { color: var(--accent); }
+.streak-row {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+.streak-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background: rgba(212,168,83,0.08);
+  border: 1px solid var(--border);
+  border-radius:20px;
+  padding:4px 12px;
+  font-size:12px;
+  color: var(--accent);
+}
+.water-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background: rgba(91,155,212,0.08);
+  border: 1px solid rgba(91,155,212,0.2);
+  border-radius:20px;
+  padding:4px 10px;
+  font-size:12px;
+  color: var(--blue);
+  cursor:pointer;
+}
+
+/* THEME TOGGLE */
+.theme-btn {
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:5px 10px;
+  font-size:16px;
+  cursor:pointer;
+  color:var(--text);
+  flex-shrink:0;
+  align-self:flex-start;
+  margin-top:2px;
+}
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+  margin: 0 18px 14px;
+}
+.card-title {
+  font-size:11px;
+  color: var(--muted);
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+/* PROGRESS */
+.progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.progress-header h3 { font-size:14px; font-weight:500; }
+.progress-pct { font-family:'Playfair Display',serif; font-size:22px; color:var(--accent); }
+.progress-bar-bg { background:var(--card2); border-radius:8px; height:7px; overflow:hidden; }
+.progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); border-radius:8px; transition:width 0.6s cubic-bezier(.34,1.56,.64,1); }
+
+/* INPUT */
+.input-row { display:flex; gap:8px; margin-bottom:8px; }
+.input-row input, .input-row select {
+  flex:1;
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  color:var(--text);
+  font-size:14px;
+  font-family:'DM Sans',sans-serif;
+  outline:none;
+  transition:border-color 0.2s;
+}
+.input-row input:focus { border-color:var(--accent); }
+.input-row select option { background:var(--card2); }
+.add-btn {
+  background:var(--accent);
+  color:#0a0a0f;
+  border:none;
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:opacity 0.2s, transform 0.1s;
+}
+.add-btn:active { transform:scale(0.93); opacity:0.8; }
+
+/* TIME INPUT */
+.time-input {
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  color:var(--text);
+  font-size:14px;
+  font-family:'DM Sans',sans-serif;
+  outline:none;
+  width:100px;
+  flex-shrink:0;
+  transition:border-color 0.2s;
+}
+.time-input:focus { border-color:var(--accent); }
+
+/* CHIPS */
+.chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:4px; }
+.chip {
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:12px;
+  cursor:pointer;
+  border:1px solid transparent;
+  background:var(--card2);
+  color:var(--muted);
+  transition:all 0.2s;
+}
+.chip.active { border-color:var(--accent); color:var(--accent); background:rgba(212,168,83,0.08); }
+
+/* COLOR PICKER */
+.color-picker { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.color-dot {
+  width:24px; height:24px;
+  border-radius:50%;
+  cursor:pointer;
+  border:2px solid transparent;
+  transition:transform 0.2s, border-color 0.2s;
+  flex-shrink:0;
+}
+.color-dot.selected { border-color:var(--text); transform:scale(1.2); }
+
+/* ITEMS */
+.items-list { display:flex; flex-direction:column; gap:8px; }
+.item-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  animation:slideIn 0.25s ease;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+}
+.item-card.dragging { opacity:0.5; border-style:dashed; cursor:grabbing; }
+.item-card.drag-over { border-color:var(--accent); }
+@keyframes slideIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.item-card.done { opacity:0.45; }
+.check-circle {
+  width:26px; height:26px;
+  border-radius:50%;
+  border:2px solid var(--muted);
+  cursor:pointer;
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+  transition:all 0.2s;
+}
+.item-card.done .check-circle { background:var(--green); border-color:var(--green); }
+.item-info { flex:1; min-width:0; }
+.item-title { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.item-card.done .item-title { text-decoration:line-through; color:var(--muted); }
+.item-meta { font-size:11px; color:var(--muted); margin-top:2px; display:flex; align-items:center; gap:5px; }
+.cat-dot { width:5px; height:5px; border-radius:50%; display:inline-block; flex-shrink:0; }
+.item-time { font-size:11px; color:var(--blue); font-weight:500; }
+.del-btn { background:none; border:none; color:var(--muted); cursor:pointer; font-size:15px; padding:4px; border-radius:6px; transition:color 0.2s; flex-shrink:0; }
+.del-btn:active { color:var(--red); }
+.drag-handle { color:var(--muted); font-size:14px; cursor:grab; padding:0 2px; flex-shrink:0; }
+
+/* EMPTY */
+.empty { text-align:center; padding:32px 20px; color:var(--muted); }
+.empty-icon { font-size:36px; margin-bottom:10px; }
+.empty h3 { font-size:15px; font-weight:500; margin-bottom:5px; color:var(--text); }
+.empty p { font-size:12px; line-height:1.5; }
+
+/* NOTE */
+.note-area textarea {
+  width:100%;
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  color:var(--text);
+  font-size:13px;
+  font-family:'DM Sans',sans-serif;
+  resize:none;
+  outline:none;
+  min-height:72px;
+  line-height:1.5;
+  transition:border-color 0.2s;
+}
+.note-area textarea:focus { border-color:var(--accent); }
+.save-note-btn {
+  margin-top:8px;
+  background:rgba(212,168,83,0.08);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:7px 14px;
+  color:var(--accent);
+  font-size:12px;
+  cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  transition:background 0.2s;
+}
+
+/* EXPORT BTN */
+.export-btn {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(139,125,212,0.08);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:10px 14px;
+  color:var(--accent2);
+  font-size:13px;
+  cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  font-weight:500;
+  transition:background 0.2s;
+  width:100%;
+  justify-content:center;
+  margin-top:6px;
+}
+.export-btn:active { background:rgba(139,125,212,0.15); }
+
+/* SECTION TITLE */
+.sec-title { font-size:11px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin:4px 18px 10px; }
+
+/* STATS GRID */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 18px 14px; }
+.stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:center; }
+.stat-num { font-family:'Playfair Display',serif; font-size:26px; color:var(--accent); display:block; }
+.stat-label { font-size:11px; color:var(--muted); margin-top:2px; }
+
+/* WEEK */
+.week-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin:0 18px 14px; }
+.week-day { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.week-day-label { font-size:9px; color:var(--muted); text-transform:uppercase; }
+.week-dot { width:34px; height:34px; border-radius:9px; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--muted); font-weight:500; }
+.week-dot.today { border-color:var(--accent); color:var(--accent); font-weight:700; }
+.week-dot.done-full { background:rgba(93,184,138,0.15); border-color:var(--green); color:var(--green); }
+.week-dot.done-half { background:rgba(212,168,83,0.08); border-color:var(--accent); color:var(--accent); }
+
+/* 30-DAY CHART */
+.chart-30 { margin:0 18px 14px; overflow-x:auto; }
+.chart-30::-webkit-scrollbar { display:none; }
+.chart-inner { display:flex; gap:3px; align-items:flex-end; min-width:max-content; padding:4px 0; }
+.chart-bar-wrap { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.chart-bar {
+  width:14px;
+  min-height:4px;
+  border-radius:4px 4px 0 0;
+  background:linear-gradient(180deg,var(--accent2),var(--accent));
+  opacity:0.7;
+  transition:opacity 0.2s;
+}
+.chart-bar.today-bar { opacity:1; box-shadow:0 0 6px rgba(212,168,83,0.4); }
+.chart-label { font-size:8px; color:var(--muted); }
+
+/* WATER TRACKER */
+.water-tracker { display:flex; flex-direction:column; gap:10px; }
+.water-cups { display:flex; gap:8px; flex-wrap:wrap; }
+.water-cup {
+  width:36px; height:44px;
+  border-radius:0 0 10px 10px;
+  border:2px solid rgba(91,155,212,0.3);
+  background:var(--card2);
+  cursor:pointer;
+  transition:all 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+.water-cup.filled { border-color:var(--blue); background:rgba(91,155,212,0.25); }
+.water-cup.filled::after {
+  content:'💧';
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  font-size:16px;
+}
+.water-goal-text { font-size:12px; color:var(--muted); }
+.water-goal-text span { color:var(--blue); font-weight:600; }
+
+/* SLEEP TRACKER */
+.sleep-row { display:flex; align-items:center; gap:10px; }
+.sleep-input {
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px 12px;
+  color:var(--text);
+  font-size:16px;
+  font-family:'DM Sans',sans-serif;
+  outline:none;
+  width:80px;
+  text-align:center;
+}
+.sleep-label { font-size:13px; color:var(--muted); }
+.sleep-quality { display:flex; gap:6px; margin-top:10px; }
+.sleep-q-btn {
+  flex:1;
+  padding:8px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--card2);
+  color:var(--muted);
+  font-size:12px;
+  cursor:pointer;
+  text-align:center;
+  transition:all 0.2s;
+  font-family:'DM Sans',sans-serif;
+}
+.sleep-q-btn.active { border-color:var(--accent2); color:var(--accent2); background:rgba(139,125,212,0.1); }
+
+/* REWARD / XP */
+.xp-card { background:linear-gradient(135deg,rgba(212,168,83,0.12),rgba(139,125,212,0.08)); border:1px solid var(--border); border-radius:16px; padding:16px; margin:0 18px 14px; }
+.xp-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.xp-level { font-family:'Playfair Display',serif; font-size:18px; color:var(--accent); }
+.xp-points { font-size:12px; color:var(--muted); }
+.xp-bar-bg { background:var(--card2); border-radius:8px; height:6px; overflow:hidden; }
+.xp-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); border-radius:8px; transition:width 0.8s cubic-bezier(.34,1.56,.64,1); }
+.xp-next { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* ACHIEVEMENTS */
+.achievements { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.ach-item { background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:10px 6px; text-align:center; }
+.ach-item.unlocked { border-color:var(--accent); background:rgba(212,168,83,0.06); }
+.ach-icon { font-size:22px; margin-bottom:4px; filter:grayscale(1) opacity(0.4); }
+.ach-item.unlocked .ach-icon { filter:none; }
+.ach-name { font-size:9px; color:var(--muted); line-height:1.2; }
+.ach-item.unlocked .ach-name { color:var(--accent); }
+
+/* TREASURE / XAZINA */
+.treasure-header {
+  padding:24px 18px 16px;
+  text-align:center;
+  position:relative;
+}
+.treasure-header::before {
+  content:'';
+  position:absolute;
+  top:-40px; left:50%; transform:translateX(-50%);
+  width:200px; height:200px;
+  background:radial-gradient(circle, rgba(139,125,212,0.15) 0%, transparent 65%);
+  pointer-events:none;
+}
+.treasure-title {
+  font-family:'Playfair Display',serif;
+  font-size:28px;
+  font-style:italic;
+  color:var(--accent2);
+  margin-bottom:4px;
+}
+.treasure-sub { font-size:13px; color:var(--muted); }
+.treasure-link-card {
+  margin:0 18px 12px;
+  background:linear-gradient(135deg,rgba(139,125,212,0.15),rgba(212,168,83,0.08));
+  border:1px solid rgba(139,125,212,0.25);
+  border-radius:16px;
+  padding:18px;
+  cursor:pointer;
+  transition:transform 0.2s, opacity 0.2s;
+  text-decoration:none;
+  display:block;
+}
+.treasure-link-card:active { transform:scale(0.97); opacity:0.85; }
+.tlc-icon { font-size:32px; margin-bottom:8px; }
+.tlc-title { font-size:16px; font-weight:600; color:var(--text); margin-bottom:4px; }
+.tlc-desc { font-size:12px; color:var(--muted); line-height:1.4; }
+.tlc-arrow { font-size:18px; color:var(--accent2); margin-top:8px; }
+
+/* MOTIVATIONAL QUOTE */
+.quote-card {
+  margin:0 18px 14px;
+  background:var(--card);
+  border-left:3px solid var(--accent);
+  border-radius:0 12px 12px 0;
+  padding:14px 16px;
+  cursor:pointer;
+  transition:opacity 0.2s;
+}
+.quote-card:active { opacity:0.8; }
+.quote-text { font-family:'Playfair Display',serif; font-size:14px; font-style:italic; color:var(--text); line-height:1.5; }
+.quote-author { font-size:11px; color:var(--muted); margin-top:6px; }
+.quote-refresh { font-size:11px; color:var(--accent2); margin-top:4px; }
+
+/* TOAST */
+.toast {
+  position:fixed;
+  bottom:calc(var(--nav-h) + 12px);
+  left:50%; transform:translateX(-50%) translateY(16px);
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:9px 18px;
+  font-size:13px;
+  color:var(--text);
+  opacity:0;
+  transition:all 0.3s;
+  pointer-events:none;
+  z-index:200;
+  white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* WEEKLY REPORT */
+.report-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin:0 18px 14px; }
+.report-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+body.light .report-row { border-bottom:1px solid rgba(0,0,0,0.04); }
+.report-row:last-child { border-bottom:none; }
+.report-label { font-size:13px; color:var(--muted); }
+.report-val { font-size:14px; font-weight:600; color:var(--text); }
+
+/* GOAL COLOR BADGE */
+.goal-color-bar { width:4px; height:100%; border-radius:4px; flex-shrink:0; align-self:stretch; }
+</style>
+</head>
+<body>
+
+<div class="app-content" id="appContent">
+
+  <!-- ===== BUGUN ===== -->
+  <div class="section active" id="sec-today">
+    <div class="header">
+      <div class="header-top">
+        <div>
+          <div class="date-label" id="dateLabel"></div>
+          <h1>Bugun nima<br><span>qilding?</span></h1>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+      </div>
+      <div class="streak-row">
+        <div class="streak-badge">🔥 <span id="streakCount">0</span> kun</div>
+        <div class="water-badge" onclick="switchSection('water')">💧 <span id="waterBadge">0/8</span></div>
+      </div>
+    </div>
+
+    <!-- XP -->
+    <div class="xp-card">
+      <div class="xp-header">
+        <span class="xp-level" id="xpLevel">🌱 Boshlang'ich</span>
+        <span class="xp-points"><span id="xpPoints">0</span> XP</span>
+      </div>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpBar" style="width:0%"></div></div>
+      <div class="xp-next" id="xpNext">Keyingi daraja: 50 XP</div>
+    </div>
+
+    <!-- Progress -->
+    <div class="card">
+      <div class="progress-header">
+        <h3>Bugungi progress</h3>
+        <span class="progress-pct" id="todayPct">0%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Add task -->
+    <div class="card">
+      <div class="card-title">Yangi vazifa</div>
+      <div class="input-row">
+        <input type="text" id="taskInput" placeholder="Bugun nima qildingiz?" maxlength="80"
+          onkeydown="if(event.key==='Enter')addTask()">
+        <input type="time" class="time-input" id="taskTime" title="Vaqt (ixtiyoriy)">
+        <button class="add-btn" onclick="addTask()">+</button>
+      </div>
+      <div class="chips" id="catChips">
+        <div class="chip active" data-cat="ish" onclick="selectCat(this)">💼 Ish</div>
+        <div class="chip" data-cat="sog'liq" onclick="selectCat(this)">🏃 Sog'liq</div>
+        <div class="chip" data-cat="o'rganish" onclick="selectCat(this)">📚 O'rganish</div>
+        <div class="chip" data-cat="shaxsiy" onclick="selectCat(this)">✨ Shaxsiy</div>
+        <div class="chip" data-cat="ijod" onclick="selectCat(this)">🎨 Ijod</div>
+      </div>
+    </div>
+
+    <div class="sec-title">Vazifalar</div>
+    <div style="padding:0 18px 4px"><div class="items-list" id="tasksList"></div></div>
+
+    <!-- Daily Note -->
+    <div class="card note-area" style="margin-top:4px">
+      <div class="card-title">Kunlik eslatma</div>
+      <textarea id="dailyNote" placeholder="Bugun qanday kechdi? Nima o'rgandingiz?..."></textarea>
+      <button class="save-note-btn" onclick="saveNote()">💾 Saqlash</button>
+    </div>
+
+    <!-- Motivational quote -->
+    <div class="sec-title">Bugungi ilhom</div>
+    <div class="quote-card" id="quoteCard" onclick="nextQuote()">
+      <div class="quote-text" id="quoteText"></div>
+      <div class="quote-author" id="quoteAuthor"></div>
+      <div class="quote-refresh">↻ Yangi iqtibos</div>
+    </div>
+  </div>
+
+  <!-- ===== MAQSADLAR ===== -->
+  <div class="section" id="sec-goals">
+    <div class="header">
+      <div class="date-label">MAQSADLAR</div>
+      <h1>O'z <span>maqsadlarim</span></h1>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Yangi maqsad</div>
+      <div class="input-row">
+        <input type="text" id="goalInput" placeholder="Maqsadingizni yozing..." maxlength="80"
+          onkeydown="if(event.key==='Enter')addGoal()">
+        <button class="add-btn" onclick="addGoal()">+</button>
+      </div>
+      <div class="input-row">
+        <select id="goalDeadline">
+          <option value="haftalik">📅 Haftalik</option>
+          <option value="oylik">📆 Oylik</option>
+          <option value="yillik">🎯 Yillik</option>
+          <option value="doimiy">♾️ Doimiy odat</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;">Rang tanlang</div>
+      <div class="color-picker" id="goalColorPicker"></div>
+    </div>
+
+    <div class="sec-title">Maqsadlarim</div>
+    <div style="padding:0 18px 4px"><div class="items-list" id="goalsList"></div></div>
+  </div>
+
+  <!-- ===== STATISTIKA ===== -->
+  <div class="section" id="sec-stats">
+    <div class="header">
+      <div class="date-label">STATISTIKA</div>
+      <h1>Mening <span>natijalarim</span></h1>
+    </div>
+
+    <div class="sec-title">Bu hafta</div>
+    <div class="week-grid" id="weekGrid"></div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-num" id="totalTasks">0</span><div class="stat-label">Jami vazifalar</div></div>
+      <div class="stat-card"><span class="stat-num" id="doneTasks">0</span><div class="stat-label">Bajarilgan</div></div>
+      <div class="stat-card"><span class="stat-num" id="totalGoals">0</span><div class="stat-label">Maqsadlar</div></div>
+      <div class="stat-card"><span class="stat-num" id="streakDays">0</span><div class="stat-label">Streak 🔥</div></div>
+    </div>
+
+    <!-- 30-day chart -->
+    <div class="sec-title">30 kunlik faollik</div>
+    <div class="chart-30"><div class="chart-inner" id="chart30"></div></div>
+
+    <!-- Weekly report -->
+    <div class="sec-title">Haftalik hisobot</div>
+    <div class="report-card" id="weeklyReport"></div>
+
+    <!-- Category stats -->
+    <div class="sec-title">Kategoriyalar</div>
+    <div id="catStats" style="padding:0 18px 4px"></div>
+
+    <!-- Achievements -->
+    <div class="sec-title">Yutuqlar</div>
+    <div style="padding:0 18px 14px">
+      <div class="achievements" id="achievements"></div>
+    </div>
+
+    <!-- Export -->
+    <div style="padding:0 18px 14px">
+      <button class="export-btn" onclick="exportData()">📤 Ma'lumotlarni yuklab olish (JSON)</button>
+    </div>
+  </div>
+
+  <!-- ===== SUV ===== -->
+  <div class="section" id="sec-water">
+    <div class="header">
+      <div class="date-label">SUVNI KUZATISH</div>
+      <h1>💧 Suv <span>ichish</span></h1>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Bugungi suv</div>
+      <div class="water-tracker">
+        <div class="water-cups" id="waterCups"></div>
+        <div class="water-goal-text">Kun maqsadi: <span id="waterGoalText">8 ta stakan (2L)</span></div>
+      </div>
+    </div>
+
+    <!-- Sleep -->
+    <div class="card">
+      <div class="card-title">😴 Uyqu</div>
+      <div class="sleep-row">
+        <input type="number" class="sleep-input" id="sleepHours" placeholder="7" min="0" max="24" onchange="saveSleep()">
+        <span class="sleep-label">soat uxladim</span>
+      </div>
+      <div class="sleep-quality">
+        <button class="sleep-q-btn" data-q="yomon" onclick="selectSleepQ(this)">😴 Yomon</button>
+        <button class="sleep-q-btn" data-q="normal" onclick="selectSleepQ(this)">😐 Normal</button>
+        <button class="sleep-q-btn" data-q="yaxshi" onclick="selectSleepQ(this)">😊 Yaxshi</button>
+        <button class="sleep-q-btn" data-q="ajoyib" onclick="selectSleepQ(this)">🌟 Ajoyib</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== XAZINA ===== -->
+  <div class="section" id="sec-treasure">
+    <div class="treasure-header">
+      <div class="treasure-title">✨ Xazina</div>
+      <div class="treasure-sub">Foydali manbalar va vositalar</div>
+    </div>
+
+    <a class="treasure-link-card" href="https://t.me/tartibvoy_bot" target="_blank">
+      <div class="tlc-icon">🤖</div>
+      <div class="tlc-title">Tartibvoy Bot</div>
+      <div class="tlc-desc">Asosiy botga qaytish va do'stlaringizga ulashish</div>
+      <div class="tlc-arrow">→</div>
+    </a>
+
+    <a class="treasure-link-card" href="https://www.youtube.com/results?search_query=odatlar+kuch" target="_blank">
+      <div class="tlc-icon">📚</div>
+      <div class="tlc-title">Odatlar haqida bilimlar</div>
+      <div class="tlc-desc">Yaxshi odatlar shakllantirish bo'yicha videolar va maqolalar</div>
+      <div class="tlc-arrow">→</div>
+    </a>
+
+    <a class="treasure-link-card" href="https://habitica.com" target="_blank">
+      <div class="tlc-icon">🎮</div>
+      <div class="tlc-title">Habitica</div>
+      <div class="tlc-desc">O'yin shaklida odatlarni kuzatish — RPG game!</div>
+      <div class="tlc-arrow">→</div>
+    </a>
+
+    <a class="treasure-link-card" href="https://www.notion.so" target="_blank">
+      <div class="tlc-icon">📝</div>
+      <div class="tlc-title">Notion</div>
+      <div class="tlc-desc">Maqsadlaringizni batafsil rejalashtirish uchun</div>
+      <div class="tlc-arrow">→</div>
+    </a>
+
+    <a class="treasure-link-card" href="https://www.calm.com" target="_blank">
+      <div class="tlc-icon">🧘</div>
+      <div class="tlc-title">Calm — Meditatsiya</div>
+      <div class="tlc-desc">Kunlik meditatsiya va dam olish uchun ilova</div>
+      <div class="tlc-arrow">→</div>
+    </a>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-today" onclick="switchSection('today')">
+    <div class="nav-active-dot"></div>
+    <span class="nav-icon">📋</span>
+    <span>Bugun</span>
+  </button>
+  <button class="nav-btn" id="nav-goals" onclick="switchSection('goals')">
+    <div class="nav-active-dot"></div>
+    <span class="nav-icon">🎯</span>
+    <span>Maqsadlar</span>
+  </button>
+  <button class="nav-btn" id="nav-stats" onclick="switchSection('stats')">
+    <div class="nav-active-dot"></div>
+    <span class="nav-icon">📊</span>
+    <span>Statistika</span>
+  </button>
+  <button class="nav-btn" id="nav-water" onclick="switchSection('water')">
+    <div class="nav-active-dot"></div>
+    <span class="nav-icon">💧</span>
+    <span>Sog'liq</span>
+  </button>
+  <button class="nav-btn treasure" id="nav-treasure" onclick="switchSection('treasure')">
+    <div class="nav-active-dot"></div>
+    <span class="nav-icon">✨</span>
+    <span>Xazina</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+const KEY = 'habitapp_v3';
+let S = {
+  tasks:[], goals:[], notes:{},
+  streak:0, lastActive:null,
+  water:{}, sleep:{},
+  xp:0, achievements:[],
+  theme:'dark',
+  quoteIndex:0,
+};
+const CAT_COLORS = {
+  'ish':'#d4a853','sog\'liq':'#5db88a','o\'rganish':'#8b7dd4',
+  'shaxsiy':'#c06070','ijod':'#5b9bd4'
+};
+const GOAL_COLORS = ['#d4a853','#8b7dd4','#5db88a','#c06070','#5b9bd4','#e07b4a','#a0d45d','#d45db8'];
+let selectedGoalColor = GOAL_COLORS[0];
+
+const QUOTES = [
+  {text:"Kichik qadamlar katta manzilga olib boradi.",author:"— Xitoy maqoli"},
+  {text:"Muvaffaqiyat — bu odatlarning yig'indisi.",author:"— James Clear"},
+  {text:"Har kuni bir oz yaxshilanish — bu g'alaba.",author:"— Aristotel"},
+  {text:"O'zingizni sevish — har kuni o'sishni xohlash.",author:"— Noma'lum"},
+  {text:"Bugun qiyin bo'lsa, ertaga osonroq bo'ladi.",author:"— Noma'lum"},
+  {text:"Intizom — bu eng yaxshi do'st.",author:"— Konfutsiy"},
+  {text:"Baxtli kishi — maqsadli kishi.",author:"— Viktor Frankl"},
+  {text:"Harakat qilmasdan muvaffaqiyatga erishib bo'lmaydi.",author:"— Noma'lum"},
+  {text:"Qiyinchilik — bu o'sish imkoniyati.",author:"— Noma'lum"},
+  {text:"Bugungi sa'y-harakatingiz ertangi muvaffaqiyatingizdir.",author:"— Noma'lum"},
+];
+const ACHIEVEMENTS_DEF = [
+  {id:'first',icon:'🌱',name:'Birinchi qadam',cond:s=>s.tasks.length>=1},
+  {id:'streak3',icon:'🔥',name:'3 kun ketma',cond:s=>s.streak>=3},
+  {id:'streak7',icon:'⚡',name:'1 hafta',cond:s=>s.streak>=7},
+  {id:'streak30',icon:'🌙',name:'30 kun',cond:s=>s.streak>=30},
+  {id:'tasks10',icon:'💪',name:'10 vazifa',cond:s=>s.tasks.length>=10},
+  {id:'tasks50',icon:'🚀',name:'50 vazifa',cond:s=>s.tasks.length>=50},
+  {id:'goals5',icon:'🎯',name:'5 maqsad',cond:s=>s.goals.length>=5},
+  {id:'water7',icon:'💧',name:'Suv ichdi',cond:s=>Object.values(s.water).some(v=>v>=7)},
+  {id:'xp100',icon:'⭐',name:'100 XP',cond:s=>s.xp>=100},
+  {id:'xp500',icon:'💎',name:'500 XP',cond:s=>s.xp>=500},
+  {id:'allday',icon:'🏆',name:'100% kun',cond:s=>{
+    const today=getTodayKey();
+    const t=s.tasks.filter(x=>x.date===today);
+    return t.length>=3&&t.every(x=>x.done);
+  }},
+  {id:'notes7',icon:'📓',name:'Eslatmachi',cond:s=>Object.keys(s.notes).length>=7},
+];
+const XP_LEVELS=[
+  {name:"🌱 Boshlang'ich",min:0,max:50},
+  {name:"🌿 O'suvchi",min:50,max:150},
+  {name:"🌳 Barqaror",min:150,max:300},
+  {name:"⭐ Yulduz",min:300,max:500},
+  {name:"🏆 Chempion",min:500,max:1000},
+  {name:"👑 Usta",min:1000,max:99999},
+];
+
+function loadS(){try{const d=localStorage.getItem(KEY);if(d)S={...S,...JSON.parse(d)};}catch(e){}}
+function saveS(){localStorage.setItem(KEY,JSON.stringify(S));}
+function getTodayKey(){return new Date().toISOString().slice(0,10);}
+
+// ===== THEME =====
+function applyTheme(){
+  document.body.classList.toggle('light',S.theme==='light');
+  document.getElementById('themeBtn').textContent=S.theme==='light'?'🌙':'☀️';
+}
+function toggleTheme(){
+  S.theme=S.theme==='dark'?'light':'dark';
+  saveS();applyTheme();
+}
+
+// ===== INIT =====
+loadS();
+applyTheme();
+updateStreak();
+renderDate();
+renderAll();
+loadNote();
+renderWaterCups();
+renderSleep();
+renderQuote();
+renderGoalColorPicker();
+if(window.Telegram?.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();}
+
+// ===== SECTION SWITCH =====
+let curSec='today';
+function switchSection(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  document.getElementById('appContent').scrollTop=0;
+  curSec=name;
+  if(name==='stats'){renderStats();renderWeekGrid();renderWeeklyReport();render30DayChart();}
+  if(name==='water'){renderWaterCups();renderSleep();}
+}
+
+// ===== DATE =====
+function renderDate(){
+  const days=['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
+  const months=['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'];
+  const d=new Date();
+  document.getElementById('dateLabel').textContent=`${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// ===== RENDER ALL =====
+function renderAll(){renderTasks();renderGoals();updateProgress();renderXP();renderAchievements();}
+
+// ===== CATEGORY =====
+let selectedCat='ish';
+function selectCat(el){
+  document.querySelectorAll('#catChips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  selectedCat=el.dataset.cat;
+}
+
+// ===== GOAL COLOR PICKER =====
+function renderGoalColorPicker(){
+  const el=document.getElementById('goalColorPicker');
+  el.innerHTML=GOAL_COLORS.map(c=>`
+    <div class="color-dot ${c===selectedGoalColor?'selected':''}" style="background:${c}" onclick="selectGoalColor('${c}',this)"></div>
+  `).join('');
+}
+function selectGoalColor(c,el){
+  selectedGoalColor=c;
+  document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ===== TASKS with drag & drop =====
+function addTask(){
+  const inp=document.getElementById('taskInput');
+  const text=inp.value.trim();
+  const time=document.getElementById('taskTime').value;
+  if(!text){showToast('Vazifa matnini kiriting!');return;}
+  S.tasks.unshift({id:Date.now(),text,cat:selectedCat,done:false,date:getTodayKey(),time:time||null});
+  S.xp+=5;
+  saveS();inp.value='';document.getElementById('taskTime').value='';
+  renderTasks();updateProgress();renderXP();checkAchievements();
+  showToast('✅ +5 XP qo\'shildi!');
+}
+function toggleTask(id){
+  const t=S.tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=!t.done;
+  if(t.done){S.xp+=10;showToast('🎉 +10 XP!');}
+  else{S.xp=Math.max(0,S.xp-10);}
+  saveS();renderTasks();updateProgress();renderXP();checkAchievements();
+}
+function deleteTask(id){S.tasks=S.tasks.filter(x=>x.id!==id);saveS();renderTasks();updateProgress();}
+
+let dragSrcId=null;
+function renderTasks(){
+  const today=getTodayKey();
+  const tasks=S.tasks.filter(t=>t.date===today);
+  const list=document.getElementById('tasksList');
+  if(!tasks.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon">📝</div><h3>Hali hech narsa yo'q</h3><p>Bugun bajargan narsalaringizni yozing</p></div>`;
+    return;
+  }
+  // Sort by time if set
+  tasks.sort((a,b)=>{
+    if(!a.time&&!b.time)return 0;
+    if(!a.time)return 1;
+    if(!b.time)return -1;
+    return a.time.localeCompare(b.time);
+  });
+  list.innerHTML=tasks.map(t=>`
+    <div class="item-card ${t.done?'done':''}" data-id="${t.id}" draggable="true">
+      <span class="drag-handle">⠿</span>
+      <div class="check-circle" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+      <div class="item-info">
+        <div class="item-title">${esc(t.text)}</div>
+        <div class="item-meta">
+          <span class="cat-dot" style="background:${CAT_COLORS[t.cat]||'#888'}"></span>${t.cat}
+          ${t.time?`<span class="item-time">⏰ ${t.time}</span>`:''}
+        </div>
+      </div>
+      <button class="del-btn" onclick="deleteTask(${t.id})">✕</button>
+    </div>`).join('');
+  // Drag events
+  list.querySelectorAll('.item-card').forEach(card=>{
+    card.addEventListener('dragstart',e=>{dragSrcId=+card.dataset.id;card.classList.add('dragging');});
+    card.addEventListener('dragend',()=>{card.classList.remove('dragging');list.querySelectorAll('.item-card').forEach(c=>c.classList.remove('drag-over'));});
+    card.addEventListener('dragover',e=>{e.preventDefault();card.classList.add('drag-over');});
+    card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+    card.addEventListener('drop',e=>{
+      e.preventDefault();
+      const targetId=+card.dataset.id;
+      if(dragSrcId===targetId)return;
+      const today2=getTodayKey();
+      const todayTasks=S.tasks.filter(t=>t.date===today2);
+      const srcIdx=todayTasks.findIndex(t=>t.id===dragSrcId);
+      const tgtIdx=todayTasks.findIndex(t=>t.id===targetId);
+      const [moved]=todayTasks.splice(srcIdx,1);
+      todayTasks.splice(tgtIdx,0,moved);
+      const others=S.tasks.filter(t=>t.date!==today2);
+      S.tasks=[...todayTasks,...others];
+      saveS();renderTasks();
+    });
+  });
+}
+function updateProgress(){
+  const today=getTodayKey();
+  const tasks=S.tasks.filter(t=>t.date===today);
+  const done=tasks.filter(t=>t.done).length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):0;
+  document.getElementById('todayPct').textContent=pct+'%';
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+// ===== GOALS =====
+function addGoal(){
+  const inp=document.getElementById('goalInput');
+  const text=inp.value.trim();
+  if(!text){showToast('Maqsad matnini kiriting!');return;}
+  S.goals.unshift({id:Date.now(),text,deadline:document.getElementById('goalDeadline').value,done:false,color:selectedGoalColor});
+  S.xp+=15;saveS();inp.value='';
+  renderGoals();renderXP();checkAchievements();
+  showToast('🎯 +15 XP!');
+}
+function toggleGoal(id){
+  const g=S.goals.find(x=>x.id===id);
+  if(!g)return;
+  g.done=!g.done;
+  if(g.done){S.xp+=30;showToast('🏆 Maqsad bajarildi! +30 XP!');}
+  saveS();renderGoals();renderXP();
+}
+function deleteGoal(id){S.goals=S.goals.filter(x=>x.id!==id);saveS();renderGoals();}
+function renderGoals(){
+  const list=document.getElementById('goalsList');
+  if(!S.goals.length){
+    list.innerHTML=`<div class="empty"><div class="empty-icon">🎯</div><h3>Maqsadlar yo'q</h3><p>O'zingizga maqsad qo'ying</p></div>`;
+    return;
+  }
+  const dlL={'haftalik':'📅 Haftalik','oylik':'📆 Oylik','yillik':'🎯 Yillik','doimiy':'♾️ Doimiy'};
+  list.innerHTML=S.goals.map(g=>`
+    <div class="item-card ${g.done?'done':''}">
+      <div class="goal-color-bar" style="background:${g.color||'var(--accent)'}"></div>
+      <div class="check-circle" onclick="toggleGoal(${g.id})">${g.done?'✓':''}</div>
+      <div class="item-info">
+        <div class="item-title">${esc(g.text)}</div>
+        <div class="item-meta">${dlL[g.deadline]||g.deadline}</div>
+      </div>
+      <button class="del-btn" onclick="deleteGoal(${g.id})">✕</button>
+    </div>`).join('');
+}
+
+// ===== XP & LEVELS =====
+function renderXP(){
+  const xp=S.xp||0;
+  const lv=XP_LEVELS.find(l=>xp>=l.min&&xp<l.max)||XP_LEVELS[XP_LEVELS.length-1];
+  const pct=Math.min(100,Math.round((xp-lv.min)/(lv.max-lv.min)*100));
+  document.getElementById('xpLevel').textContent=lv.name;
+  document.getElementById('xpPoints').textContent=xp;
+  document.getElementById('xpBar').style.width=pct+'%';
+  document.getElementById('xpNext').textContent=`Keyingi daraja: ${lv.max} XP kerak`;
+}
+
+// ===== ACHIEVEMENTS =====
+function checkAchievements(){
+  let changed=false;
+  ACHIEVEMENTS_DEF.forEach(a=>{
+    if(!S.achievements.includes(a.id)&&a.cond(S)){
+      S.achievements.push(a.id);
+      showToast('🏅 Yangi yutuq: '+a.name+'!');
+      changed=true;
+    }
+  });
+  if(changed){saveS();renderAchievements();}
+}
+function renderAchievements(){
+  const el=document.getElementById('achievements');
+  if(!el)return;
+  el.innerHTML=ACHIEVEMENTS_DEF.map(a=>`
+    <div class="ach-item ${S.achievements.includes(a.id)?'unlocked':''}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+    </div>`).join('');
+}
+
+// ===== STATS =====
+function renderStats(){
+  document.getElementById('totalTasks').textContent=S.tasks.length;
+  document.getElementById('doneTasks').textContent=S.tasks.filter(t=>t.done).length;
+  document.getElementById('totalGoals').textContent=S.goals.length;
+  document.getElementById('streakDays').textContent=S.streak||0;
+  const cats={};
+  S.tasks.forEach(t=>{
+    if(!cats[t.cat])cats[t.cat]={total:0,done:0};
+    cats[t.cat].total++;
+    if(t.done)cats[t.cat].done++;
+  });
+  const el=document.getElementById('catStats');
+  const entries=Object.entries(cats);
+  if(!entries.length){el.innerHTML=`<div class="empty" style="padding:20px"><div class="empty-icon">📊</div><h3>Ma'lumot yo'q</h3></div>`;return;}
+  el.innerHTML=entries.map(([cat,v])=>{
+    const pct=v.total?Math.round(v.done/v.total*100):0;
+    return `<div class="card" style="margin-bottom:10px">
+      <div class="progress-header"><h3 style="color:${CAT_COLORS[cat]||'#888'}">${cat}</h3><span style="font-size:12px;color:var(--muted)">${v.done}/${v.total}</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:${CAT_COLORS[cat]||'#888'}"></div></div>
+    </div>`;
+  }).join('');
+}
+function renderWeeklyReport(){
+  const el=document.getElementById('weeklyReport');
+  if(!el)return;
+  const today=new Date();
+  let totalTasks=0,doneTasks=0,activeDays=0;
+  for(let i=0;i<7;i++){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const dk=d.toISOString().slice(0,10);
+    const dt=S.tasks.filter(t=>t.date===dk);
+    if(dt.length)activeDays++;
+    totalTasks+=dt.length;
+    doneTasks+=dt.filter(t=>t.done).length;
+  }
+  const pct=totalTasks?Math.round(doneTasks/totalTasks*100):0;
+  el.innerHTML=`
+    <div class="report-row"><span class="report-label">Faol kunlar</span><span class="report-val">${activeDays}/7 kun</span></div>
+    <div class="report-row"><span class="report-label">Jami vazifalar</span><span class="report-val">${totalTasks}</span></div>
+    <div class="report-row"><span class="report-label">Bajarilgan</span><span class="report-val">${doneTasks}</span></div>
+    <div class="report-row"><span class="report-label">Samaradorlik</span><span class="report-val" style="color:var(--green)">${pct}%</span></div>
+    <div class="report-row"><span class="report-label">Streak</span><span class="report-val">🔥 ${S.streak||0} kun</span></div>`;
+}
+function renderWeekGrid(){
+  const days=['Du','Se','Ch','Pa','Ju','Sh','Ya'];
+  const el=document.getElementById('weekGrid');
+  const today=new Date();
+  const todayKey=getTodayKey();
+  const dow=today.getDay();
+  const monday=new Date(today);
+  monday.setDate(today.getDate()-(dow===0?6:dow-1));
+  el.innerHTML='';
+  for(let i=0;i<7;i++){
+    const d=new Date(monday);d.setDate(monday.getDate()+i);
+    const dk=d.toISOString().slice(0,10);
+    const dt=S.tasks.filter(t=>t.date===dk);
+    const done=dt.filter(t=>t.done);
+    let cls='';
+    if(dk===todayKey)cls='today';
+    else if(dt.length&&done.length===dt.length)cls='done-full';
+    else if(done.length>0)cls='done-half';
+    el.innerHTML+=`<div class="week-day"><div class="week-day-label">${days[i]}</div><div class="week-dot ${cls}">${d.getDate()}</div></div>`;
+  }
+}
+
+// ===== 30-DAY CHART =====
+function render30DayChart(){
+  const el=document.getElementById('chart30');
+  const today=new Date();
+  const todayKey=getTodayKey();
+  const bars=[];
+  let maxCount=1;
+  for(let i=29;i>=0;i--){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const dk=d.toISOString().slice(0,10);
+    const tasks=S.tasks.filter(t=>t.date===dk);
+    const done=tasks.filter(t=>t.done).length;
+    if(tasks.length>maxCount)maxCount=tasks.length;
+    bars.push({dk,total:tasks.length,done,day:d.getDate(),isToday:dk===todayKey});
+  }
+  const maxH=60;
+  el.innerHTML=bars.map(b=>{
+    const h=b.total?Math.max(8,Math.round((b.done/maxCount)*maxH)):4;
+    return `<div class="chart-bar-wrap">
+      <div class="chart-bar ${b.isToday?'today-bar':''}" style="height:${h}px" title="${b.done}/${b.total}"></div>
+      <div class="chart-label">${b.day}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== WATER =====
+function renderWaterCups(){
+  const today=getTodayKey();
+  const count=S.water[today]||0;
+  document.getElementById('waterBadge').textContent=count+'/8';
+  const el=document.getElementById('waterCups');
+  if(!el)return;
+  el.innerHTML='';
+  for(let i=0;i<8;i++){
+    const div=document.createElement('div');
+    div.className='water-cup'+(i<count?' filled':'');
+    div.onclick=()=>toggleWater(i);
+    el.appendChild(div);
+  }
+}
+function toggleWater(i){
+  const today=getTodayKey();
+  const cur=S.water[today]||0;
+  S.water[today]=i<cur?i:i+1;
+  if(S.water[today]>=8){S.xp+=20;showToast('💧 Kun maqsadi bajarildi! +20 XP!');}
+  saveS();renderWaterCups();checkAchievements();
+}
+
+// ===== SLEEP =====
+function renderSleep(){
+  const today=getTodayKey();
+  const sleep=S.sleep[today]||{};
+  const inp=document.getElementById('sleepHours');
+  if(inp&&sleep.hours)inp.value=sleep.hours;
+  if(sleep.quality){
+    document.querySelectorAll('.sleep-q-btn').forEach(b=>{
+      b.classList.toggle('active',b.dataset.q===sleep.quality);
+    });
+  }
+}
+function saveSleep(){
+  const today=getTodayKey();
+  if(!S.sleep[today])S.sleep[today]={};
+  S.sleep[today].hours=document.getElementById('sleepHours').value;
+  saveS();
+}
+function selectSleepQ(el){
+  document.querySelectorAll('.sleep-q-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const today=getTodayKey();
+  if(!S.sleep[today])S.sleep[today]={};
+  S.sleep[today].quality=el.dataset.q;
+  saveS();showToast('😴 Uyqu sifati saqlandi!');
+}
+
+// ===== NOTES =====
+function loadNote(){const n=S.notes[getTodayKey()]||'';document.getElementById('dailyNote').value=n;}
+function saveNote(){
+  const text=document.getElementById('dailyNote').value;
+  S.notes[getTodayKey()]=text;
+  saveS();showToast('📓 Saqlandi!');
+  checkAchievements();
+}
+
+// ===== STREAK =====
+function updateStreak(){
+  const today=getTodayKey();
+  if(S.lastActive!==today){
+    const yest=new Date();yest.setDate(yest.getDate()-1);
+    const yk=yest.toISOString().slice(0,10);
+    if(S.lastActive===yk)S.streak=(S.streak||0)+1;
+    else if(S.lastActive!==today)S.streak=1;
+    S.lastActive=today;saveS();
+  }
+  const s=S.streak||0;
+  document.getElementById('streakCount').textContent=s;
+}
+
+// ===== QUOTE =====
+var quoteIdx=0;
+function renderQuote(){
+  quoteIdx=S.quoteIndex||new Date().getDay()%QUOTES.length;
+  const q=QUOTES[quoteIdx%QUOTES.length];
+  const t=document.getElementById('quoteText');
+  const a=document.getElementById('quoteAuthor');
+  if(t)t.textContent=q.text;
+  if(a)a.textContent=q.author;
+}
+function nextQuote(){
+  quoteIdx=(quoteIdx+1)%QUOTES.length;
+  S.quoteIndex=quoteIdx;
+  saveS();
+  renderQuote();
+  showToast('✨ Yangi iqtibos!');
+}
+
+// ===== EXPORT =====
+function exportData(){
+  const data=JSON.stringify(S,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`tartibvoy_${getTodayKey()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 Yuklab olindi!');
+}
+
+// ===== TOAST =====
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>
